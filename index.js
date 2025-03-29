@@ -22,6 +22,8 @@ function isGitRepo() {
 
 function ensureConfigDir() {
   if (!fs.existsSync(CONFIG_DIR)) fs.mkdirSync(CONFIG_DIR);
+  const gitignorePath = path.join(CONFIG_DIR, '.gitignore');
+  fs.writeFileSync(gitignorePath, '*\n');
 }
 
 async function ensureBranchExists(branch) {
@@ -36,7 +38,7 @@ async function ensureBranchExists(branch) {
 
 program
   .name('commit-bot')
-  .description('Automatoically commit and push uncommited changes on a schedule')
+  .description('Auto commit and push changes on a schedule')
   .version(pkg.version);
 
 program
@@ -44,7 +46,7 @@ program
   .description('Initialize commit-bot in the current repo')
   .action(async () => {
     if (!isGitRepo()) {
-      console.log(chalk.red('Not a git repository.')); 
+      console.log(chalk.red('Not a git repository.'));
       return;
     }
 
@@ -52,8 +54,14 @@ program
       {
         type: 'input',
         name: 'branch',
-        message: 'Which branch to auto-commit to? (will be created if it doesn\'t exist)',
-        default: 'commit_bot_branch'
+        message: 'Which branch should mirror main? (will be created if it doesn\'t exist)',
+        default: 'mirror'
+      },
+      {
+        type: 'input',
+        name: 'track',
+        message: 'Which branch should be mirrored? (source branch)',
+        default: 'main'
       },
       {
         type: 'input',
@@ -83,7 +91,7 @@ program
       execSync(`pm2 start ${WORKER_PATH} --name commit-bot-${path.basename(process.cwd())}`);
       console.log(chalk.green('Commit-bot started!'));
     } catch (err) {
-      console.log(chalk.red('Failed to start background process.')); 
+      console.log(chalk.red('Failed to start background process. Make sure PM2 is installed globally with `npm install -g pm2`.'));
     }
   });
 
@@ -108,7 +116,7 @@ program
       const output = execSync(`pm2 show commit-bot-${path.basename(process.cwd())}`).toString();
       console.log(chalk.blue(output));
     } catch {
-      console.log(chalk.red('Auto-git is not running.'));
+      console.log(chalk.red('Commit-bot is not running.'));
     }
 
     const lastRun = path.join(CONFIG_DIR, 'last-run.log');

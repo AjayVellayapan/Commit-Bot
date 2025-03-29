@@ -1,58 +1,89 @@
 # Commit Bot
 
-A simple CLI tool that automatically commits and pushes uncommited changes to a specific branch on a schedule.
+**Commit Bot** is a CLI tool that keeps a mirror branch (e.g. `mirror`) in sync with a source branch (e.g. `main`) by periodically committing and pushing any changes — even uncommitted ones — without affecting your working directory.
 
 ## Features
 
-- Auto-commits and pushes if changes are detected
-- Runs in the background using PM2
-- Customizable commit branch and interval
+- Automatically mirrors a source branch into a target branch on a schedule
+- Leaves your working branch and local changes untouched
+- Runs continuously in the background using PM2
+- Fully configurable via CLI
 
-## Install
+---
+
+## Installation
 
 ```bash
 npm install -g commit-bot
 ```
 
+---
+
 ## Usage
 
+### Step 1: Initialize in a Git repo
 ```bash
-commit-bot init          # Setup for current repo
-commit-bot start         # Start background auto-committing
-commit-bot stop          # Stop the background process
-commit-bot status        # Check last commit time and running status
+cd your-project
+commit-bot init
 ```
+You'll be prompted to provide:
+- **Mirror branch** (e.g. `mirror`) — auto-created if missing
+- **Source branch** (default: `main`) — the branch to mirror
+- **Interval** in minutes (e.g. `60`)
+
+### Step 2: Start the bot
+```bash
+commit-bot start
+```
+This runs a background process that syncs changes from `main` → `mirror` every X minutes.
+
+### Step 3: Check status
+```bash
+commit-bot status
+```
+Shows if the bot is running and when the last sync occurred.
+
+### Step 4: Stop the bot
+```bash
+commit-bot stop
+```
+Stops and removes the background sync process.
+
+---
+
+## Example
+
+Say you're working on the `main` branch with frequent local changes. You want a stable branch called `mirror` that always reflects your progress — including uncommitted changes — every 30 minutes:
+
+```bash
+commit-bot init
+# Choose: branch = mirror, track = main, interval = 30
+commit-bot start
+```
+Now `mirror` will always be up-to-date with `main`, without touching your working directory.
+
+---
 
 ## Configuration
 
-Stored in `.commit-bot/config.json` and `.commit-bot/last-run.log`
-
-## Examples
-
-### 1. Initialize in a repo
-```bash
-cd my-project
-commit-bot init
-# Answer prompts: branch = commit_bot_branch, interval = 60 (every hour)
+Stored in `.commit-bot/config.json` (not tracked by Git):
+```json
+{
+  "branch": "mirror",
+  "track": "main",
+  "interval": "60"
+}
 ```
 
-### 2. Start auto-committing
-```bash
-commit-bot start
-# Will now auto-commit and push changes to 'commit_bot_branch' every hour
-```
+Also writes a timestamp to `.commit-bot/last-run.log`.
 
-### 3. Check status
-```bash
-commit-bot status
-# Shows PM2 status and last commit time
-```
+---
 
-### 4. Stop the bot
-```bash
-commit-bot stop
-# Stops the background job
-```
+## Requirements
+- Node.js v16+
+- PM2 globally installed: `npm install -g pm2`
+
+---
 
 ## License
 
