@@ -1,12 +1,12 @@
 # Commit Bot
 
-A simple CLI tool that automatically commits and pushes changes to a specific branch on a schedule.
+A simple CLI tool that automatically commits and pushes uncommited changes to a specific branch on a schedule.
 
 ## Features
 
 - Auto-commits and pushes if changes are detected
 - Runs in the background using PM2
-- Customizable branch and interval
+- Customizable commit branch and interval
 
 ## Install
 

@@ -4,7 +4,7 @@ const { Command } = require('commander');
 const chalk = require('chalk');
 const fs = require('fs');
 const path = require('path');
-const inquirer = require('inquirer');
+const inquirer = require('inquirer').default;
 const { execSync } = require('child_process');
 const pkg = require('./package.json');
 
