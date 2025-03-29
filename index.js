@@ -64,6 +64,7 @@ program
       }
     ]);
 
+    await ensureBranchExists(answers.branch);
     ensureConfigDir();
     fs.writeFileSync(CONFIG_FILE, JSON.stringify(answers, null, 2));
     console.log(chalk.green('Commit-bot configured! Run `commit-bot start` to begin.'));
