@@ -6,6 +6,7 @@ const fs = require('fs');
 const path = require('path');
 const inquirer = require('inquirer').default;
 const { execSync } = require('child_process');
+const simpleGit = require('simple-git');
 const pkg = require('./package.json');
 
 const program = new Command();
@@ -13,6 +14,7 @@ const program = new Command();
 const CONFIG_DIR = path.join(process.cwd(), '.commit-bot');
 const CONFIG_FILE = path.join(CONFIG_DIR, 'config.json');
 const WORKER_PATH = path.join(__dirname, 'worker.js');
+const git = simpleGit();
 
 function isGitRepo() {
   return fs.existsSync(path.join(process.cwd(), '.git'));
@@ -20,6 +22,16 @@ function isGitRepo() {
 
 function ensureConfigDir() {
   if (!fs.existsSync(CONFIG_DIR)) fs.mkdirSync(CONFIG_DIR);
+}
+
+async function ensureBranchExists(branch) {
+  const branches = await git.branch();
+  if (!branches.all.includes(`remotes/origin/${branch}`) && !branches.all.includes(branch)) {
+    console.log(chalk.yellow(`Branch '${branch}' does not exist. Creating it now...`));
+    await git.checkoutLocalBranch(branch);
+    await git.push(['-u', 'origin', branch]);
+    console.log(chalk.green(`Branch '${branch}' created and pushed.`));
+  }
 }
 
 program
@@ -40,7 +52,7 @@ program
       {
         type: 'input',
         name: 'branch',
-        message: 'Which branch to commit to?',
+        message: 'Which branch to auto-commit to? (will be created if it doesn\'t exist)',
         default: 'commit_bot_branch'
       },
       {
