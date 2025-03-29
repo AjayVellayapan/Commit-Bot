@@ -11,6 +11,10 @@
   },
   "author": "Ajay Vellayapan",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ajayvellayapan/commit-bot.git"
+  },
   "dependencies": {
     "commander": "^13.1.0",
     "inquirer": "^12.5.0",
