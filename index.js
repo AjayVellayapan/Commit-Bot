@@ -29,10 +29,13 @@ function ensureConfigDir() {
 async function ensureBranchExists(branch) {
   const branches = await git.branch();
   if (!branches.all.includes(`remotes/origin/${branch}`) && !branches.all.includes(branch)) {
+    const currentBranch = branches.current;
     console.log(chalk.yellow(`Branch '${branch}' does not exist. Creating it now...`));
     await git.checkoutLocalBranch(branch);
     await git.push(['-u', 'origin', branch]);
     console.log(chalk.green(`Branch '${branch}' created and pushed.`));
+    await git.checkout(currentBranch);
+    console.log(chalk.green(`Returned to branch '${currentBranch}'`));
   }
 }
 
@@ -53,15 +56,15 @@ program
     const answers = await inquirer.prompt([
       {
         type: 'input',
-        name: 'branch',
-        message: 'Which branch should mirror main? (will be created if it doesn\'t exist)',
-        default: 'mirror'
-      },
-      {
-        type: 'input',
         name: 'track',
         message: 'Which branch should be mirrored? (source branch)',
         default: 'main'
+      },
+      {
+        type: 'input',
+        name: 'branch',
+        message: 'Which branch should track the source branch? (will be created if it doesn\'t exist)',
+        default: 'commit_bot_branch'
       },
       {
         type: 'input',
