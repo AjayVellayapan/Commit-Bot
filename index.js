@@ -6,7 +6,6 @@ const fs = require('fs');
 const path = require('path');
 const inquirer = require('inquirer').default;
 const { execSync } = require('child_process');
-const simpleGit = require('simple-git');
 const pkg = require('./package.json');
 
 const program = new Command();
@@ -14,7 +13,6 @@ const program = new Command();
 const CONFIG_DIR = path.join(process.cwd(), '.commit-bot');
 const CONFIG_FILE = path.join(CONFIG_DIR, 'config.json');
 const WORKER_PATH = path.join(__dirname, 'worker.js');
-const git = simpleGit();
 
 function isGitRepo() {
   return fs.existsSync(path.join(process.cwd(), '.git'));
@@ -26,22 +24,9 @@ function ensureConfigDir() {
   fs.writeFileSync(gitignorePath, '*\n');
 }
 
-async function ensureBranchExists(branch) {
-  const branches = await git.branch();
-  if (!branches.all.includes(`remotes/origin/${branch}`) && !branches.all.includes(branch)) {
-    const currentBranch = branches.current;
-    console.log(chalk.yellow(`Branch '${branch}' does not exist. Creating it now...`));
-    await git.checkoutLocalBranch(branch);
-    await git.push(['-u', 'origin', branch]);
-    console.log(chalk.green(`Branch '${branch}' created and pushed.`));
-    await git.checkout(currentBranch);
-    console.log(chalk.green(`Returned to branch '${currentBranch}'`));
-  }
-}
-
 program
   .name('commit-bot')
-  .description('Auto commit and push changes on a schedule')
+  .description('Auto commit and push current branch on a schedule')
   .version(pkg.version);
 
 program
@@ -56,26 +41,13 @@ program
     const answers = await inquirer.prompt([
       {
         type: 'input',
-        name: 'track',
-        message: 'Which branch should be mirrored? (source branch)',
-        default: 'main'
-      },
-      {
-        type: 'input',
-        name: 'branch',
-        message: 'Which branch should track the source branch? (will be created if it doesn\'t exist)',
-        default: 'commit_bot_branch'
-      },
-      {
-        type: 'input',
         name: 'interval',
         message: 'Commit interval (in minutes)?',
-        default: '60',
+        default: '30',
         validate: input => isNaN(Number(input)) ? 'Must be a number' : true
       }
     ]);
 
-    await ensureBranchExists(answers.branch);
     ensureConfigDir();
     fs.writeFileSync(CONFIG_FILE, JSON.stringify(answers, null, 2));
     console.log(chalk.green('Commit-bot configured! Run `commit-bot start` to begin.'));
