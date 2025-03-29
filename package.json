@@ -1,0 +1,21 @@
+{
+  "name": "commit-bot",
+  "version": "1.0.0",
+  "description": "A CLI tool to auto-commit and push changes on a schedule",
+  "main": "index.js",
+  "bin": {
+    "commit-bot": "./index.js"
+  },
+  "scripts": {
+    "start": "node index.js"
+  },
+  "author": "Ajay Vellayapan",
+  "license": "MIT",
+  "dependencies": {
+    "commander": "^13.1.0",
+    "inquirer": "^12.5.0",
+    "node-cron": "^3.0.3",
+    "pm2": "^6.0.5",
+    "simple-git": "^3.27.0"
+  }
+}
