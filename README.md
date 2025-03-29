@@ -56,7 +56,7 @@ Stored in `.commit-bot/config.json` (not tracked by Git):
 }
 ```
 
-Also writes a timestamp to `.commit-bot/last-run.log`.
+Also writes a timestamp to `.commit-bot/last-run.log`. 
 
 ---
 
